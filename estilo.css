@@ -1,0 +1,211 @@
+/* Cores e fontes do "caderno": papel quadriculado, tinta escura e marcador amarelo */
+:root {
+  --papel: #edf1ee;
+  --cartao: #fbfcfa;
+  --tinta: #1b2733;
+  --tinta-suave: #4c5b69;
+  --lapis: #2d5b9a;
+  --borda: #c3ccc6;
+  --quadricula: rgba(45, 91, 154, 0.12);
+  --marca: #f0d55a;
+  --sobre-marca: #1b2733;
+  --erro: #9c2f2f;
+  --erro-fundo: #f6e3e1;
+
+  --fonte-titulo: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  --fonte-texto: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --fonte-numeros: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --papel: #141b22;
+    --cartao: #1b242d;
+    --tinta: #e6ecef;
+    --tinta-suave: #a5b3bf;
+    --lapis: #8db4ea;
+    --borda: #34424f;
+    --quadricula: rgba(141, 180, 234, 0.08);
+    --erro: #f0a5a0;
+    --erro-fundo: #3a2022;
+  }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 0 1rem 3rem;
+  background-color: var(--papel);
+  background-image:
+    linear-gradient(var(--quadricula) 1px, transparent 1px),
+    linear-gradient(90deg, var(--quadricula) 1px, transparent 1px);
+  background-size: 24px 24px;
+  color: var(--tinta);
+  font-family: var(--fonte-texto);
+  line-height: 1.55;
+}
+
+.topo, .abas, main, .rodape {
+  max-width: 860px;
+  margin-inline: auto;
+}
+
+.topo { padding: 2.5rem 0 1.25rem; }
+
+.topo h1 {
+  margin: 0;
+  font-family: var(--fonte-titulo);
+  font-size: clamp(1.9rem, 5vw, 2.8rem);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.topo p { margin: 0.4rem 0 0; color: var(--tinta-suave); }
+
+/* ---------- Abas ---------- */
+.abas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  border-bottom: 2px solid var(--lapis);
+}
+
+.aba {
+  padding: 0.6rem 1rem;
+  border: 1px solid var(--borda);
+  border-bottom: none;
+  border-radius: 6px 6px 0 0;
+  background: transparent;
+  color: var(--tinta-suave);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.aba[aria-selected="true"] {
+  background: var(--lapis);
+  border-color: var(--lapis);
+  color: var(--papel);
+}
+
+/* ---------- Painéis ---------- */
+.painel {
+  padding: 1.5rem;
+  background: var(--cartao);
+  border: 1px solid var(--borda);
+  border-top: none;
+}
+
+.painel[hidden] { display: none; }
+
+.painel h2 {
+  margin: 0 0 0.4rem;
+  font-family: var(--fonte-titulo);
+  font-size: 1.5rem;
+}
+
+.explicacao { margin: 0 0 1.25rem; max-width: 70ch; color: var(--tinta-suave); }
+.nota { margin: 0.25rem 0 1rem; font-size: 0.9rem; color: var(--tinta-suave); }
+
+/* ---------- Campos ---------- */
+.campos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.campo { display: flex; flex-direction: column; gap: 0.3rem; font-weight: 600; font-size: 0.95rem; }
+.campo.largo { grid-column: 1 / -1; }
+
+input, textarea, select {
+  padding: 0.55rem 0.7rem;
+  border: 1px solid var(--borda);
+  border-radius: 4px;
+  background: var(--papel);
+  color: var(--tinta);
+  font-family: var(--fonte-numeros);
+  font-size: 1rem;
+  font-weight: 400;
+}
+
+textarea { resize: vertical; }
+
+:focus-visible {
+  outline: 3px solid var(--lapis);
+  outline-offset: 2px;
+}
+
+.botao {
+  padding: 0.65rem 1.4rem;
+  border: none;
+  border-radius: 4px;
+  background: var(--marca);
+  color: var(--sobre-marca);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.botao:hover { filter: brightness(0.95); }
+
+/* ---------- Saída ---------- */
+.saida { margin-top: 1.5rem; }
+.saida:empty { display: none; }
+
+.resultado {
+  display: inline-block;
+  padding: 0.5rem 0.9rem;
+  margin: 0 0 0.75rem;
+  background: var(--marca);
+  color: var(--sobre-marca);
+  font-weight: 600;
+  border-radius: 3px;
+}
+
+.aviso {
+  padding: 0.6rem 0.9rem;
+  margin: 0 0 0.75rem;
+  border-left: 4px solid var(--lapis);
+  background: var(--papel);
+}
+
+.erro {
+  padding: 0.6rem 0.9rem;
+  border-left: 4px solid var(--erro);
+  background: var(--erro-fundo);
+  color: var(--erro);
+  font-weight: 600;
+}
+
+.rolagem { overflow-x: auto; margin-top: 0.5rem; }
+
+table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+
+th, td {
+  padding: 0.35rem 0.7rem;
+  border-bottom: 1px solid var(--borda);
+  text-align: right;
+  font-family: var(--fonte-numeros);
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+th { font-family: var(--fonte-texto); font-weight: 700; color: var(--tinta-suave); }
+
+/* ---------- Passos do Gauss ---------- */
+.passo {
+  margin: 0 0 1rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--borda);
+  border-radius: 4px;
+}
+
+.passo h4 { margin: 0 0 0.3rem; font-size: 1rem; }
+.passo p { margin: 0 0 0.5rem; font-size: 0.92rem; color: var(--tinta-suave); }
+
+.matriz td { border-bottom: none; padding: 0.15rem 0.7rem; }
+.matriz td.separador { border-left: 2px solid var(--lapis); }
+
+.rodape { margin-top: 2rem; font-size: 0.85rem; color: var(--tinta-suave); }

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Caderno de Métodos Numéricos</title>
+  <link rel="stylesheet" href="estilo.css">
+</head>
+<body>
+
+  <header class="topo">
+    <h1>Caderno de métodos numéricos</h1>
+    <p>Digite o problema e acompanhe cada passo do cálculo.</p>
+  </header>
+
+  <!-- Abas: cada botão mostra um painel (veja app.js) -->
+  <nav class="abas" role="tablist" aria-label="Métodos">
+    <button type="button" role="tab" class="aba" data-alvo="painel-bissecao" aria-selected="true">Bisseção</button>
+    <button type="button" role="tab" class="aba" data-alvo="painel-secante" aria-selected="false">Secante</button>
+    <button type="button" role="tab" class="aba" data-alvo="painel-gauss" aria-selected="false">Eliminação de Gauss</button>
+  </nav>
+
+  <main>
+
+    <!-- ================= BISSEÇÃO ================= -->
+    <section id="painel-bissecao" class="painel" role="tabpanel">
+      <h2>Método da bisseção</h2>
+      <p class="explicacao">
+        Encontra uma raiz de f(x) dentro de [a, b], dividindo o intervalo ao meio
+        a cada passo. Exige que f(a) e f(b) tenham sinais opostos.
+      </p>
+
+      <div class="campos">
+        <label class="campo largo">Função f(x)
+          <input type="text" id="bis-funcao" value="x^3 - 2*x - 5" autocomplete="off" spellcheck="false">
+        </label>
+        <label class="campo">Limite inferior (a)
+          <input type="text" id="bis-a" value="2" inputmode="decimal">
+        </label>
+        <label class="campo">Limite superior (b)
+          <input type="text" id="bis-b" value="3" inputmode="decimal">
+        </label>
+        <label class="campo">Tolerância
+          <input type="text" id="bis-tolerancia" value="1e-6" inputmode="decimal">
+        </label>
+        <label class="campo">Máximo de iterações
+          <input type="text" id="bis-maxiter" value="50" inputmode="numeric">
+        </label>
+        <label class="campo">Cálculo do erro
+          <select id="bis-tipoerro">
+            <option value="absoluto">Absoluto: |xₖ − xₖ₋₁|</option>
+            <option value="relativo">Relativo: |xₖ − xₖ₋₁| / |xₖ|</option>
+          </select>
+        </label>
+        <label class="campo">Parar quando
+          <select id="bis-criterio">
+            <option value="erro">Erro ≤ tolerância</option>
+            <option value="fx">|f(x)| ≤ tolerância</option>
+            <option value="ambos">Um dos dois</option>
+          </select>
+        </label>
+      </div>
+
+      <button type="button" class="botao" id="botao-bissecao">Calcular raiz</button>
+      <div id="saida-bissecao" class="saida" aria-live="polite"></div>
+    </section>
+
+    <!-- ================= SECANTE ================= -->
+    <section id="painel-secante" class="painel" role="tabpanel" hidden>
+      <h2>Método da secante</h2>
+      <p class="explicacao">
+        Parte de dois valores iniciais e traça uma reta (secante) entre os pontos da função
+        para chegar mais perto da raiz. Não exige mudança de sinal, mas pode divergir.
+      </p>
+
+      <div class="campos">
+        <label class="campo largo">Função f(x)
+          <input type="text" id="sec-funcao" value="x^3 - 2*x - 5" autocomplete="off" spellcheck="false">
+        </label>
+        <label class="campo">Primeiro valor (x₀)
+          <input type="text" id="sec-x0" value="2" inputmode="decimal">
+        </label>
+        <label class="campo">Segundo valor (x₁)
+          <input type="text" id="sec-x1" value="3" inputmode="decimal">
+        </label>
+        <label class="campo">Tolerância
+          <input type="text" id="sec-tolerancia" value="1e-6" inputmode="decimal">
+        </label>
+        <label class="campo">Máximo de iterações
+          <input type="text" id="sec-maxiter" value="50" inputmode="numeric">
+        </label>
+        <label class="campo">Cálculo do erro
+          <select id="sec-tipoerro">
+            <option value="absoluto">Absoluto: |xₖ − xₖ₋₁|</option>
+            <option value="relativo">Relativo: |xₖ − xₖ₋₁| / |xₖ|</option>
+          </select>
+        </label>
+        <label class="campo">Parar quando
+          <select id="sec-criterio">
+            <option value="erro">Erro ≤ tolerância</option>
+            <option value="fx">|f(x)| ≤ tolerância</option>
+            <option value="ambos">Um dos dois</option>
+          </select>
+        </label>
+      </div>
+
+      <button type="button" class="botao" id="botao-secante">Calcular raiz</button>
+      <div id="saida-secante" class="saida" aria-live="polite"></div>
+    </section>
+
+    <!-- ================= GAUSS ================= -->
+    <section id="painel-gauss" class="painel" role="tabpanel" hidden>
+      <h2>Eliminação de Gauss com pivoteamento parcial</h2>
+      <p class="explicacao">
+        Resolve o sistema A·x = b para matriz quadrada de qualquer ordem. Em cada coluna, a linha com o maior valor em módulo
+        vira o pivô; depois zeramos os valores abaixo dele e resolvemos de baixo para cima.
+      </p>
+
+      <div class="campos">
+        <label class="campo">Matriz A (uma linha por linha)
+          <textarea id="gauss-matriz" rows="5" spellcheck="false">2 1 -1
+-3 -1 2
+-2 1 2</textarea>
+        </label>
+        <label class="campo">Vetor b
+          <textarea id="gauss-vetor" rows="5" spellcheck="false">8 -11 -3</textarea>
+        </label>
+        <label class="campo">Casas decimais
+          <input type="text" id="gauss-casas" value="4" inputmode="numeric">
+        </label>
+      </div>
+      <p class="nota">Separe os números com espaço; use ponto como separador decimal (0.5).</p>
+
+      <button type="button" class="botao" id="botao-gauss">Resolver sistema</button>
+      <div id="saida-gauss" class="saida" aria-live="polite"></div>
+    </section>
+
+  </main>
+
+  <footer class="rodape">
+    <p>Todo o cálculo roda no seu navegador; nada é enviado para servidor.</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
