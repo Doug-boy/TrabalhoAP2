@@ -3,7 +3,7 @@
 Site que resolve problemas de métodos numéricos mostrando o cálculo passo a passo.
 Roda inteiro no navegador (HTML, CSS e JavaScript), sem servidor e sem instalar nada.
 
-**Site online:** https://SEU_USUARIO.github.io/NOME_DO_REPOSITORIO/
+**Site online:** https://Doug-boy.github.io/TrabalhoAP2/
 
 ## Métodos
 
