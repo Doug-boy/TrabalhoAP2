@@ -35,13 +35,13 @@
           <input type="text" id="bis-funcao" value="x^3 - 2*x - 5" autocomplete="off" spellcheck="false">
         </label>
         <label class="campo">Limite inferior (a)
-          <input type="text" id="bis-a" value="2" inputmode="decimal">
+          <input type="text" id="bis-a" value="2" autocomplete="off">
         </label>
         <label class="campo">Limite superior (b)
-          <input type="text" id="bis-b" value="3" inputmode="decimal">
+          <input type="text" id="bis-b" value="3" autocomplete="off">
         </label>
         <label class="campo">Tolerância
-          <input type="text" id="bis-tolerancia" value="1e-6" inputmode="decimal">
+          <input type="text" id="bis-tolerancia" value="1e-6" autocomplete="off">
         </label>
         <label class="campo">Máximo de iterações
           <input type="text" id="bis-maxiter" value="50" inputmode="numeric">
@@ -50,6 +50,7 @@
           <select id="bis-tipoerro">
             <option value="absoluto">Absoluto: |xₖ − xₖ₋₁|</option>
             <option value="relativo">Relativo: |xₖ − xₖ₋₁| / |xₖ|</option>
+            <option value="percentual">Relativo em % (ER%): 100·|xₖ − xₖ₋₁| / |xₖ|</option>
           </select>
         </label>
         <label class="campo">Parar quando
@@ -60,6 +61,8 @@
           </select>
         </label>
       </div>
+      <p class="nota">Números aceitam 0.5, 0,5, pi/2, sqrt(2), 1e-5, 10^-5 e 5x10^-4. Para seguir os slides
+        (ER% &lt; ε), escolha "Relativo em %" e digite o ε como está na lista.</p>
 
       <button type="button" class="botao" id="botao-bissecao">Calcular raiz</button>
       <div id="saida-bissecao" class="saida" aria-live="polite"></div>
@@ -78,13 +81,13 @@
           <input type="text" id="sec-funcao" value="x^3 - 2*x - 5" autocomplete="off" spellcheck="false">
         </label>
         <label class="campo">Primeiro valor (x₀)
-          <input type="text" id="sec-x0" value="2" inputmode="decimal">
+          <input type="text" id="sec-x0" value="2" autocomplete="off">
         </label>
         <label class="campo">Segundo valor (x₁)
-          <input type="text" id="sec-x1" value="3" inputmode="decimal">
+          <input type="text" id="sec-x1" value="3" autocomplete="off">
         </label>
         <label class="campo">Tolerância
-          <input type="text" id="sec-tolerancia" value="1e-6" inputmode="decimal">
+          <input type="text" id="sec-tolerancia" value="1e-6" autocomplete="off">
         </label>
         <label class="campo">Máximo de iterações
           <input type="text" id="sec-maxiter" value="50" inputmode="numeric">
@@ -93,6 +96,7 @@
           <select id="sec-tipoerro">
             <option value="absoluto">Absoluto: |xₖ − xₖ₋₁|</option>
             <option value="relativo">Relativo: |xₖ − xₖ₋₁| / |xₖ|</option>
+            <option value="percentual">Relativo em % (ER%): 100·|xₖ − xₖ₋₁| / |xₖ|</option>
           </select>
         </label>
         <label class="campo">Parar quando
@@ -103,6 +107,8 @@
           </select>
         </label>
       </div>
+      <p class="nota">Números aceitam 0.5, 0,5, pi/2, sqrt(2), 1e-5, 10^-5 e 5x10^-4. Para seguir os slides
+        (ER% &lt; ε), escolha "Relativo em %" e digite o ε como está na lista.</p>
 
       <button type="button" class="botao" id="botao-secante">Calcular raiz</button>
       <div id="saida-secante" class="saida" aria-live="polite"></div>
@@ -110,10 +116,11 @@
 
     <!-- ================= GAUSS ================= -->
     <section id="painel-gauss" class="painel" role="tabpanel" hidden>
-      <h2>Eliminação de Gauss com pivoteamento parcial</h2>
+      <h2>Eliminação de Gauss</h2>
       <p class="explicacao">
-        Resolve o sistema A·x = b para matriz quadrada de qualquer ordem. Em cada coluna, a linha com o maior valor em módulo
-        vira o pivô; depois zeramos os valores abaixo dele e resolvemos de baixo para cima.
+        Resolve o sistema A·x = b para matriz quadrada de qualquer ordem. Com pivoteamento parcial, em cada coluna a linha
+        com o maior valor em módulo vira o pivô; depois zeramos os valores abaixo dele e resolvemos de baixo para cima.
+        Também mostra o determinante e a fatoração LU (deixe b vazio para ver só isso).
       </p>
 
       <div class="campos">
@@ -122,11 +129,8 @@
 -3 -1 2
 -2 1 2</textarea>
         </label>
-        <label class="campo">Vetor b
+        <label class="campo">Vetor b (opcional)
           <textarea id="gauss-vetor" rows="5" spellcheck="false">8 -11 -3</textarea>
-        </label>
-        <label class="campo">Casas decimais
-          <input type="text" id="gauss-casas" value="4" inputmode="numeric">
         </label>
         <label class="campo">Pivoteamento
           <select id="gauss-pivoteamento">
@@ -134,8 +138,22 @@
             <option value="nenhum">Sem pivoteamento</option>
           </select>
         </label>
+        <label class="campo">Aritmética das contas
+          <select id="gauss-aritmetica">
+            <option value="total">Precisão total (≈ 16 algarismos)</option>
+            <option value="significativos">Arredondar a k algarismos significativos</option>
+            <option value="casas">Arredondar a k casas decimais</option>
+          </select>
+        </label>
+        <label class="campo">k (algarismos ou casas)
+          <input type="text" id="gauss-digitos" value="3" inputmode="numeric">
+        </label>
+        <label class="campo">Casas decimais na tela
+          <input type="text" id="gauss-casas" value="4" inputmode="numeric">
+        </label>
       </div>
-      <p class="nota">Separe os números com espaço; use ponto como separador decimal (0.5).</p>
+      <p class="nota">Separe os números com espaço (ou ;). Decimais com ponto ou vírgula colada: 0.5 ou 0,5.
+        Frações e expressões funcionam: 1/2, -sqrt(2), pi. Para F(10, 3, ...) dos slides, use 3 algarismos significativos.</p>
 
       <button type="button" class="botao" id="botao-gauss">Resolver sistema</button>
       <div id="saida-gauss" class="saida" aria-live="polite"></div>
