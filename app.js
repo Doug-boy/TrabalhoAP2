@@ -29,13 +29,43 @@ const FUNCOES = {
   asin: [Math.asin, 1], acos: [Math.acos, 1], atan: [Math.atan, 1],
   exp: [Math.exp, 1], ln: [Math.log, 1], log: [Math.log10, 1],
   sqrt: [Math.sqrt, 1], abs: [Math.abs, 1], pow: [Math.pow, 2],
+  // nomes usados em português e funções extras
+  sen: [Math.sin, 1], tg: [Math.tan, 1], arcsen: [Math.asin, 1], arccos: [Math.acos, 1],
+  arctg: [Math.atan, 1], arctan: [Math.atan, 1], sinh: [Math.sinh, 1], cosh: [Math.cosh, 1],
+  tanh: [Math.tanh, 1], sec: [(v) => 1 / Math.cos(v), 1], cot: [(v) => 1 / Math.tan(v), 1], cotg: [(v) => 1 / Math.tan(v), 1],
+  csc: [(v) => 1 / Math.sin(v), 1], cosec: [(v) => 1 / Math.sin(v), 1],
+  log2: [Math.log2, 1], log10: [Math.log10, 1], cbrt: [Math.cbrt, 1], raiz: [Math.sqrt, 1],
+  sign: [Math.sign, 1], floor: [Math.floor, 1], ceil: [Math.ceil, 1], round: [Math.round, 1],
 };
 
 const tem = (objeto, chave) => Object.prototype.hasOwnProperty.call(objeto, chave);
 
+// Todos os nomes que o analisador conhece, do maior para o menor (assim "log10" ganha de "log")
+const NOMES = [...Object.keys(FUNCOES), ...Object.keys(CONSTANTES), "x"].sort((a, b) => b.length - a.length);
+
+// Aceita "f(x) = ...", "y = ..." e equações como "x^2 = 3 + x" (vira x^2 - (3 + x) = 0)
 function compilarFuncao(texto) {
+  const semPrefixo = texto.replace(/^\s*(f\s*\(\s*x\s*\)|y)\s*=(?!=)/i, "");
+  const partes = semPrefixo.split("=");
+  if (partes.length === 1) return compilarExpressao(semPrefixo);
+  if (partes.length !== 2 || !partes[0].trim() || !partes[1].trim()) {
+    throw new Error('Use um único "=" com algo dos dois lados (ex.: x^2 = 3 + x).');
+  }
+  const esquerda = compilarExpressao(partes[0]);
+  const direita = compilarExpressao(partes[1]);
+  return (x) => esquerda(x) - direita(x);
+}
+
+function compilarExpressao(texto) {
   // Remove espaços e aceita ** como sinônimo de ^
-  const entrada = texto.replace(/\s+/g, "").replace(/\*\*/g, "^");
+  const entrada = texto
+    .toLowerCase()                // X e x, Sin e sin: tanto faz
+    .replace(/[ˆ＾]/g, "^")        // acento circunflexo digitado no lugar de ^
+    .replace(/[−–—]/g, "-")       // outros tipos de traço viram "menos"
+    .replace(/[×·]/g, "*")
+    .replace(/÷/g, "/")
+    .replace(/\s+/g, "")
+    .replace(/\*\*/g, "^");
   if (entrada === "") throw new Error("Digite a função f(x).");
 
   let pos = 0; // posição do caractere que estamos lendo
@@ -61,14 +91,20 @@ function compilarFuncao(texto) {
     return esquerda;
   }
 
-  // termo := unário (('*' | '/') unário)*
+  // termo := unário (('*' | '/' | multiplicação implícita) fator)*
+  const iniciaFator = () => /[\d.a-zA-Z_(]/.test(olhar() || "");
   function lerTermo() {
     let esquerda = lerUnario();
-    while (olhar() === "*" || olhar() === "/") {
-      const operador = entrada[pos++];
+    while (olhar() === "*" || olhar() === "/" || iniciaFator()) {
       const a = esquerda;
-      const b = lerUnario();
-      esquerda = operador === "*" ? (x) => a(x) * b(x) : (x) => a(x) / b(x);
+      if (olhar() === "*" || olhar() === "/") {
+        const operador = entrada[pos++];
+        const b = lerUnario();
+        esquerda = operador === "*" ? (x) => a(x) * b(x) : (x) => a(x) / b(x);
+      } else {
+        const b = lerPotencia(); // implícita: 2x, 3(x+1), x(x+1), 2sen(x)
+        esquerda = (x) => a(x) * b(x);
+      }
     }
     return esquerda;
   }
@@ -86,6 +122,10 @@ function compilarFuncao(texto) {
     if (olhar() === "^") {
       pos++;
       const expoente = lerUnario();
+      // e^2x pode ser e^(2x) ou (e^2)·x: em vez de adivinhar, pedimos parênteses
+      if (/[a-zA-Z_(]/.test(olhar() || "")) {
+        throw new Error('Expoente ambíguo: escreva e^(2*x) ou (e^2)*x. Use parênteses depois do "^".');
+      }
       return (x) => Math.pow(base(x), expoente(x));
     }
     return base;
@@ -113,30 +153,38 @@ function compilarFuncao(texto) {
       return () => valor;
     }
 
+    if (c === "|") { // módulo: |x - 3|
+      pos++;
+      const dentro = lerSoma();
+      esperar("|");
+      return (x) => Math.abs(dentro(x));
+    }
+
     if (/[a-zA-Z_]/.test(c)) {
-      const regex = /[a-zA-Z_]+/y;
+      const regex = /[a-zA-Z_][a-zA-Z_0-9]*/y; // letras e dígitos (log2, log10)
       regex.lastIndex = pos;
-      const nome = regex.exec(entrada)[0];
+      const letras = regex.exec(entrada)[0];
+      // Pega o MAIOR nome conhecido no começo das letras (permite "xsen(x)", "xe", "pix")
+      const nome = NOMES.find((n) => letras.startsWith(n));
+      if (!nome) {
+        throw new Error(`"${letras}" não é reconhecido. Use x, pi, e e as funções: ${Object.keys(FUNCOES).join(", ")}.`);
+      }
       pos += nome.length;
 
       if (nome === "x") return (x) => x;
       if (tem(CONSTANTES, nome)) { const v = CONSTANTES[nome]; return () => v; }
 
-      if (tem(FUNCOES, nome)) {
-        const [funcao, quantidade] = FUNCOES[nome];
-        esperar("(");
-        const argumentos = [lerSoma()];
-        while (olhar() === ",") { pos++; argumentos.push(lerSoma()); }
-        esperar(")");
-        if (argumentos.length !== quantidade) {
-          throw new Error(`"${nome}" precisa de ${quantidade} argumento(s).`);
-        }
-        return (x) => funcao(...argumentos.map((arg) => arg(x)));
+      const [funcao, quantidade] = FUNCOES[nome];
+      // Sem parênteses é ambíguo (sen x² = sen(x²) ou sen(x)²?), então exigimos "sen(x)"
+      if (olhar() !== "(") throw new Error(`Escreva ${nome}(...) com parênteses, por exemplo ${nome}(x).`);
+      pos++;
+      const argumentos = [lerSoma()];
+      while (olhar() === ",") { pos++; argumentos.push(lerSoma()); }
+      esperar(")");
+      if (argumentos.length !== quantidade) {
+        throw new Error(`"${nome}" precisa de ${quantidade} argumento(s).`);
       }
-
-      throw new Error(
-        `"${nome}" não é reconhecido. Use x, pi, e e as funções sin, cos, tan, asin, acos, atan, exp, ln, log, sqrt, abs, pow.`
-      );
+      return (x) => funcao(...argumentos.map((arg) => arg(x)));
     }
 
     throw new Error(`Caractere inesperado "${c}" na função.`);
@@ -144,7 +192,7 @@ function compilarFuncao(texto) {
 
   const arvore = lerSoma();
   if (pos < entrada.length) {
-    throw new Error(`Não entendi "${entrada.slice(pos)}". Se for multiplicação, use * (ex.: 2*x).`);
+    throw new Error(`Não entendi "${entrada.slice(pos)}". Confira parênteses e operadores.`);
   }
   return (x) => arvore(x);
 }
@@ -237,8 +285,8 @@ function blocoResultado(r, motivoFalha, extras = []) {
     : `<p class="erro">${motivoFalha} Melhor aproximação: ${formatar(r.raiz, 8)}</p>`;
   const linhas = [`|f(x)| = ${formatar(Math.abs(r.fx))}`, `${r.passos.length} iteração(ões)`, ...extras];
   let html = titulo + `<p class="aviso">${linhas.join(" · ")}</p>`;
-  if (r.sucesso && Math.abs(r.fx) > 1e-3) {
-    html += `<p class="erro">Atenção: o erro ficou pequeno, mas |f(x)| continua grande. Isso indica descontinuidade
+  if (r.sucesso && r.escala !== undefined && Math.abs(r.fx) > 0.5 * r.escala) {
+    html += `<p class="erro">Atenção: o erro ficou pequeno, mas |f(x)| continua tão grande quanto nas extremidades. Isso indica descontinuidade
       (ex.: assíntota, como 1/x em x = 0). O Teorema de Bolzano exige f contínua em [a, b]; esse valor NÃO é raiz.</p>`;
   }
   return html;
@@ -265,6 +313,7 @@ function bissecao(f, a, b, tolerancia, maxIteracoes, tipoErro = "absoluto", crit
     throw new Error("f(a) e f(b) têm o mesmo sinal: o Teorema de Bolzano não garante raiz em [a, b]. Escolha outro intervalo.");
   }
 
+  const escala = Math.max(Math.abs(fa), Math.abs(fb)); // tamanho típico de |f| no intervalo inicial
   const passos = [];
   let x = a, fx = fa, xAnterior = null;
 
@@ -274,15 +323,16 @@ function bissecao(f, a, b, tolerancia, maxIteracoes, tipoErro = "absoluto", crit
     if (!Number.isFinite(fx)) throw new Error(`f(x) ficou indefinida em x = ${formatar(x)}.`);
 
     const erro = calcularErro(x, xAnterior, tipoErro);
-    passos.push({ iteracao, a, b, x, fx, erro, cota: (b - a) / 2 });
+    passos.push({ iteracao, a, b, x, fx, erro, erroAbs: calcularErro(x, xAnterior, "absoluto"), erroRel: calcularErro(x, xAnterior, "relativo"), cota: (b - a) / 2 });
 
-    if (atendeParada(erro, fx, tolerancia, criterio)) return { sucesso: true, raiz: x, fx, passos };
+    // Se o ponto médio caiu exatamente na raiz (f(x) = 0), acabou: não há o que refinar
+    if (fx === 0 || atendeParada(erro, fx, tolerancia, criterio)) return { sucesso: true, raiz: x, fx, passos, escala };
 
     // Fica com a metade em que ainda há troca de sinal
     if (fa * fx < 0) b = x; else { a = x; fa = fx; }
     xAnterior = x;
   }
-  return { sucesso: false, raiz: x, fx, passos };
+  return { sucesso: false, raiz: x, fx, passos, escala };
 }
 
 function executarBissecao() {
@@ -304,8 +354,8 @@ function executarBissecao() {
     }
     const tabela = r.passos.length
       ? montarTabela(
-          ["Iteração", "a", "b", "x (ponto médio)", "f(x)", "Erro", "(b−a)/2"],
-          r.passos.map((p) => [p.iteracao, formatar(p.a), formatar(p.b), formatar(p.x), formatar(p.fx), textoErro(p.erro), formatar(p.cota)])
+          ["Iteração", "a", "b", "x (ponto médio)", "f(x)", "Erro absoluto", "Erro relativo", "(b−a)/2"],
+          r.passos.map((p) => [p.iteracao, formatar(p.a), formatar(p.b), formatar(p.x), formatar(p.fx), textoErro(p.erroAbs), textoErro(p.erroRel), formatar(p.cota)])
         )
       : "";
     saida.innerHTML = blocoResultado(r, `Não convergiu em ${maxIteracoes} iterações.`, extras) + tabela;
@@ -330,6 +380,7 @@ function secante(f, x0, x1, tolerancia, maxIteracoes, tipoErro = "absoluto", cri
     throw new Error("A função não está definida em um dos valores iniciais.");
   }
 
+  const escala = Math.max(Math.abs(fAnterior), Math.abs(fAtual));
   const passos = [];
   let melhor = { x: xAtual, fx: fAtual };
   const falha = (motivo) => ({ sucesso: false, raiz: melhor.x, fx: melhor.fx, passos, motivo });
@@ -342,13 +393,13 @@ function secante(f, x0, x1, tolerancia, maxIteracoes, tipoErro = "absoluto", cri
     const xNovo = xAtual - (fAtual * (xAtual - xAnterior)) / denominador;
     const fNovo = f(xNovo);
     const erro = calcularErro(xNovo, xAtual, tipoErro);
-    passos.push({ iteracao, xAnterior, xAtual, xNovo, fNovo, erro });
+    passos.push({ iteracao, xAnterior, xAtual, xNovo, fNovo, erro, erroAbs: calcularErro(xNovo, xAtual, "absoluto"), erroRel: calcularErro(xNovo, xAtual, "relativo") });
 
     if (!Number.isFinite(xNovo) || !Number.isFinite(fNovo)) {
       return falha("O método divergiu: o próximo ponto saiu do domínio de f ou virou infinito. Tente outros valores iniciais.");
     }
     melhor = { x: xNovo, fx: fNovo };
-    if (atendeParada(erro, fNovo, tolerancia, criterio)) return { sucesso: true, raiz: xNovo, fx: fNovo, passos };
+    if (atendeParada(erro, fNovo, tolerancia, criterio)) return { sucesso: true, raiz: xNovo, fx: fNovo, passos, escala };
 
     xAnterior = xAtual; fAnterior = fAtual; // avança a janela de dois pontos
     xAtual = xNovo; fAtual = fNovo;
@@ -358,7 +409,7 @@ function secante(f, x0, x1, tolerancia, maxIteracoes, tipoErro = "absoluto", cri
 
 // Estima a ordem p ≈ ln(eₖ₊₁/eₖ) / ln(eₖ/eₖ₋₁) com os três últimos erros ainda acima do ruído numérico
 function estimarOrdem(passos) {
-  const erros = passos.map((p) => p.erro).filter((e) => e !== null && Number.isFinite(e) && e > 1e-13);
+  const erros = passos.map((p) => p.erroAbs).filter((e) => e !== null && Number.isFinite(e) && e > 1e-13);
   if (erros.length < 3) return null;
   const [e0, e1, e2] = erros.slice(-3);
   const p = Math.log(e2 / e1) / Math.log(e1 / e0);
@@ -381,8 +432,8 @@ function executarSecante() {
     const extras = ordem === null ? [] : [`ordem de convergência estimada ≈ ${ordem.toFixed(2)} (teoria: 1,618)`];
     const tabela = r.passos.length
       ? montarTabela(
-          ["Iteração", "xₙ₋₁", "xₙ", "xₙ₊₁", "f(xₙ₊₁)", "Erro"],
-          r.passos.map((p) => [p.iteracao, formatar(p.xAnterior), formatar(p.xAtual), formatar(p.xNovo), formatar(p.fNovo), textoErro(p.erro)])
+          ["Iteração", "xₙ₋₁", "xₙ", "xₙ₊₁", "f(xₙ₊₁)", "Erro absoluto", "Erro relativo"],
+          r.passos.map((p) => [p.iteracao, formatar(p.xAnterior), formatar(p.xAtual), formatar(p.xNovo), formatar(p.fNovo), textoErro(p.erroAbs), textoErro(p.erroRel)])
         )
       : "";
     saida.innerHTML = blocoResultado(r, r.motivo, extras) + tabela;
@@ -405,7 +456,7 @@ const LIMITE_PASSOS = 10; // acima dessa ordem, o passo a passo é omitido
 
 // Funciona para matriz quadrada de QUALQUER ordem n. Também classifica o sistema:
 // possível e determinado (SPD), possível e indeterminado (SPI) ou impossível (SI).
-function eliminarGauss(matrizOriginal, vetorOriginal) {
+function eliminarGauss(matrizOriginal, vetorOriginal, usarPivoteamento = true) {
   const n = matrizOriginal.length;
   const guardar = n <= LIMITE_PASSOS; // em matrizes grandes não guardamos cada etapa
   const A = matrizOriginal.map((linha) => [...linha]);
@@ -425,11 +476,18 @@ function eliminarGauss(matrizOriginal, vetorOriginal) {
   let linha = 0; // linha onde o próximo pivô vai ficar
   for (let coluna = 0; coluna < n && linha < n; coluna++) {
     // a) pivoteamento parcial: maior |valor| da coluna, da linha atual para baixo
+    //    (sem pivoteamento, o pivô é sempre o elemento da diagonal)
     let linhaPivo = linha;
-    for (let i = linha + 1; i < n; i++) {
-      if (Math.abs(A[i][coluna]) > Math.abs(A[linhaPivo][coluna])) linhaPivo = i;
+    if (usarPivoteamento) {
+      for (let i = linha + 1; i < n; i++) {
+        if (Math.abs(A[i][coluna]) > Math.abs(A[linhaPivo][coluna])) linhaPivo = i;
+      }
     }
     if (Math.abs(A[linhaPivo][coluna]) < limite) {
+      // Sem pivoteamento: se há valor não nulo abaixo, só trocando linhas seria possível continuar
+      if (!usarPivoteamento && A.slice(linha + 1).some((l) => Math.abs(l[coluna]) >= limite)) {
+        return { passos, x: null, trocas, posto: linha, motivo: `Pivô nulo na linha ${linha + 1}, coluna ${coluna + 1}: sem pivoteamento não dá para continuar (seria preciso trocar linhas). Use o pivoteamento parcial.` };
+      }
       registrar(`Coluna ${coluna + 1}: sem pivô`, ["Todos os valores desta coluna (da linha atual para baixo) são ≈ 0; passamos para a próxima coluna."]);
       continue;
     }
@@ -477,11 +535,22 @@ function eliminarGauss(matrizOriginal, vetorOriginal) {
   return { passos, x, trocas, posto, motivo: null };
 }
 
+// Lê um elemento da matriz/vetor. Aceita número, fração e expressão: 0.5, 1/2, -sqrt(2), pi, 2e-3
+// (sem espaços dentro do elemento). Devolve NaN se não for um número válido.
+function lerEntrada(texto) {
+  try {
+    const valor = compilarFuncao(texto)(NaN); // se usar "x", o resultado vira NaN e é rejeitado
+    return Number.isFinite(valor) ? valor : NaN;
+  } catch (erro) {
+    return NaN;
+  }
+}
+
 // Lê a matriz A: uma linha por linha de texto, números separados por espaço
 function lerMatriz(texto) {
   const linhas = texto.split("\n").map((l) => l.trim()).filter((l) => l !== "");
   if (linhas.length === 0) throw new Error("Digite a matriz A.");
-  const matriz = linhas.map((linha) => linha.split(/[\s,;]+/).map(Number));
+  const matriz = linhas.map((linha) => linha.split(/[\s,;]+/).map(lerEntrada));
 
   if (matriz.some((linha) => linha.some((v) => !Number.isFinite(v)))) {
     throw new Error("A matriz A tem algo que não é número.");
@@ -493,7 +562,7 @@ function lerMatriz(texto) {
 }
 
 function lerVetor(texto, tamanho) {
-  const vetor = texto.trim().split(/[\s,;]+/).filter((t) => t !== "").map(Number);
+  const vetor = texto.trim().split(/[\s,;]+/).filter((t) => t !== "").map(lerEntrada);
   if (vetor.some((v) => !Number.isFinite(v))) throw new Error("O vetor b tem algo que não é número.");
   if (vetor.length !== tamanho) throw new Error(`O vetor b precisa ter ${tamanho} elemento(s), mas tem ${vetor.length}.`);
   return vetor;
@@ -518,7 +587,8 @@ function executarGauss() {
       throw new Error("As casas decimais precisam ser um inteiro entre 0 e 10.");
     }
     const n = A.length;
-    const r = eliminarGauss(A, b);
+    const usarPivoteamento = pegar("gauss-pivoteamento").value !== "nenhum";
+    const r = eliminarGauss(A, b, usarPivoteamento);
 
     const passosHtml = n <= LIMITE_PASSOS
       ? r.passos.map((p) => `
@@ -540,7 +610,7 @@ function executarGauss() {
       }
       const solucao = r.x.map((v, i) => `x${i + 1} = ${formatar(v, casas)}`).join(" · ");
       resumo = `<p class="resultado">${solucao}</p>
-        <p class="aviso">Ordem ${n} · ${r.trocas} troca(s) de linha · maior diferença |A·x − b| = ${formatar(maiorDiferenca)}</p>`;
+        <p class="aviso">Ordem ${n} · ${usarPivoteamento ? "pivoteamento parcial" : "sem pivoteamento"} · ${r.trocas} troca(s) de linha · maior diferença |A·x − b| = ${formatar(maiorDiferenca)}</p>`;
     } else {
       resumo = `<p class="erro">${r.motivo}</p>`;
     }
