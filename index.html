@@ -46,7 +46,7 @@
         <label class="campo">Máximo de iterações
           <input type="text" id="bis-maxiter" value="50" inputmode="numeric">
         </label>
-        <label class="campo">Cálculo do erro
+        <label class="campo">Erro usado para parar
           <select id="bis-tipoerro">
             <option value="absoluto">Absoluto: |xₖ − xₖ₋₁|</option>
             <option value="relativo">Relativo: |xₖ − xₖ₋₁| / |xₖ|</option>
@@ -89,7 +89,7 @@
         <label class="campo">Máximo de iterações
           <input type="text" id="sec-maxiter" value="50" inputmode="numeric">
         </label>
-        <label class="campo">Cálculo do erro
+        <label class="campo">Erro usado para parar
           <select id="sec-tipoerro">
             <option value="absoluto">Absoluto: |xₖ − xₖ₋₁|</option>
             <option value="relativo">Relativo: |xₖ − xₖ₋₁| / |xₖ|</option>
@@ -127,6 +127,12 @@
         </label>
         <label class="campo">Casas decimais
           <input type="text" id="gauss-casas" value="4" inputmode="numeric">
+        </label>
+        <label class="campo">Pivoteamento
+          <select id="gauss-pivoteamento">
+            <option value="parcial">Parcial (troca de linhas)</option>
+            <option value="nenhum">Sem pivoteamento</option>
+          </select>
         </label>
       </div>
       <p class="nota">Separe os números com espaço; use ponto como separador decimal (0.5).</p>
