@@ -3,7 +3,7 @@
 Site que resolve problemas de métodos numéricos mostrando o cálculo passo a passo.
 Roda inteiro no navegador (HTML, CSS e JavaScript), sem servidor e sem instalar nada.
 
-**Site online:** https://Doug-boy.github.io/TrabalhoAP2/
+**Site online:** https://SEU_USUARIO.github.io/NOME_DO_REPOSITORIO/
 
 ## Métodos
 
@@ -11,13 +11,13 @@ Roda inteiro no navegador (HTML, CSS e JavaScript), sem servidor e sem instalar 
 |---|---|---|
 | **Bisseção** | Raiz de f(x) em [a, b] com f(a)·f(b) < 0 | Tabela com a, b, ponto médio, f(x), erro e (b−a)/2; nº de iterações previsto pela teoria |
 | **Secante** | Raiz de f(x) a partir de dois valores iniciais | Tabela com xₙ₋₁, xₙ, xₙ₊₁, f(xₙ₊₁) e erro; ordem de convergência estimada |
-| **Eliminação de Gauss** (pivoteamento parcial) | Sistema A·x = b com A quadrada de **qualquer ordem** | Matriz aumentada em cada etapa (até 10×10), solução e verificação |
+| **Eliminação de Gauss** (com ou sem pivoteamento parcial) | Sistema A·x = b com A quadrada de **qualquer ordem** | Matriz aumentada em cada etapa (até 10×10), solução e verificação |
 
 ## Erro e critério de parada
 
 Na bisseção e na secante dá para escolher:
 
-- **Cálculo do erro:** absoluto `|xₖ − xₖ₋₁|` ou relativo `|xₖ − xₖ₋₁| / |xₖ|`.
+- **Erro usado para parar:** (as tabelas sempre mostram os dois erros, absoluto e relativo) absoluto `|xₖ − xₖ₋₁|` ou relativo `|xₖ − xₖ₋₁| / |xₖ|`.
 - **Parar quando:** erro ≤ tolerância, `|f(x)|` ≤ tolerância, ou um dos dois.
 
 ## Casos que o site avisa por que não rodam
@@ -31,14 +31,26 @@ Na bisseção e na secante dá para escolher:
 
 | Quer escrever | Digite |
 |---|---|
-| x ao cubo menos 2x menos 5 | `x^3 - 2*x - 5` (ou `x**3 - 2*x - 5`) |
-| seno, cosseno, tangente | `sin(x)`, `cos(x)`, `tan(x)` |
-| arco seno, cosseno e tangente | `asin(x)`, `acos(x)`, `atan(x)` |
-| exponencial, log natural, log base 10 | `exp(x)`, `ln(x)`, `log(x)` |
-| raiz quadrada, módulo, potência | `sqrt(x)`, `abs(x)`, `pow(x, 2)` |
-| constantes | `pi`, `e` |
+| Polinômios e potências | `x^3 - 2*x - 5`, `x**3`, `pow(x, 2)` |
+| Multiplicação | `2*x`, `2x`, `3(x+1)`, `(x+1)(x-1)`, `2sen(x)` |
+| Seno, cosseno, tangente | `sen(x)` ou `sin(x)`, `cos(x)`, `tg(x)` ou `tan(x)` |
+| Secante, cossecante, cotangente | `sec(x)`, `cosec(x)` ou `csc(x)`, `cot(x)` ou `cotg(x)` |
+| Inversas | `arcsen(x)`, `arccos(x)`, `arctg(x)` (também `asin`, `acos`, `atan`) |
+| Hiperbólicas | `sinh(x)`, `cosh(x)`, `tanh(x)` |
+| Exponencial e logaritmos | `exp(x)` ou `e^x`, `ln(x)` (natural), `log(x)` e `log10(x)` (base 10), `log2(x)` |
+| Raízes e módulo | `sqrt(x)` ou `raiz(x)`, `cbrt(x)` (cúbica), `abs(x)` ou `\|x\|` |
+| Arredondamento e sinal | `floor(x)`, `ceil(x)`, `round(x)`, `sign(x)` |
+| Constantes | `pi`, `e` |
+| Equação com igual | `x^2 = 3 + x` (o site usa `x^2 - (3 + x) = 0`); também vale `f(x) = ...` e `y = ...` |
 
-Use `*` para multiplicar (`2*x`, e não `2x`) e ponto como separador decimal.
+Maiúsculas e minúsculas tanto faz. Aceita `×`, `÷`, `−` e o acento `ˆ` no lugar de `^`.
+
+**O site pede parênteses de propósito em dois casos ambíguos:**
+
+- Função sem parênteses: `senx` ou `sen2x` (seria `sen(x)`, `sen(x²)`?). Escreva `sen(x)`.
+- Expoente seguido de algo: `e^2x` (seria `e^(2x)` ou `(e^2)·x`?). Escreva `e^(2*x)` ou `(e^2)*x`.
+
+Use ponto como separador decimal (`0.5`).
 
 ## Exemplos para testar
 
