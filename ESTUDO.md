@@ -67,12 +67,12 @@ O programa deixa escolher o tipo de erro e o critério de parada (erro ≤ ε, \
 
 | Parte | O que faz |
 |---|---|
-| **1. `compilarFuncao`** | Lê o texto de f(x) (ex.: `x^3 - 2*x - 5`, `sin(x)`) com um analisador próprio, sem `eval`. Aceita `^` e `**`, `pi`, `e` e as funções sin, cos, tan, asin, acos, atan, exp, ln, log, sqrt, abs e pow. |
+| **1. `compilarFuncao`** | Lê o texto de f(x) (ex.: `x^3 - 2*x - 5`, `sin(x)`) com um analisador próprio, sem `eval`. Aceita `^` e `**`, multiplicação implícita (`2x`), módulo `\|x\|`, equações com `=`, `pi`, `e` e funções como sen, cos, tg, arcsen, exp, ln, log, log2, sqrt, abs. Sem parênteses em funções (`senx`) ou expoentes (`e^2x`) é ambíguo, então o programa pede parênteses. |
 | **2. Utilidades** | `formatar` (casas decimais ou notação científica), `lerNumero`, `lerTolerancia`, `montarTabela`, `mostrarErro`. |
 | **3. `calcularErro` / `atendeParada`** | Calculam o erro absoluto ou relativo e decidem quando parar, conforme o critério escolhido. `blocoResultado` monta o resumo e avisa se \|f(x)\| continua grande. |
 | **`bissecao`** | Valida o intervalo (Bolzano), calcula o ponto médio, guarda cada passo numa tabela e fica com a metade onde o sinal troca. |
 | **4. `secante`** | Aplica a fórmula da secante; detecta divisão por zero, divergência e domínio inválido. `estimarOrdem` estima p ≈ ln(eₖ₊₁/eₖ) / ln(eₖ/eₖ₋₁). |
-| **5. `eliminarGauss`** | Pivoteamento parcial, eliminação, retrossubstituição e classificação SPD/SPI/SI. Pivô "zero" é medido em relação ao maior elemento da matriz. Funciona para qualquer ordem n; acima de 10×10 os passos são omitidos para a página não travar. |
+| **5. `eliminarGauss`** | Pivoteamento parcial (ou sem pivoteamento, à escolha), eliminação, retrossubstituição e classificação SPD/SPI/SI. Sem pivoteamento, para com aviso se o pivô da diagonal for zero e existir valor não nulo abaixo. Pivô "zero" é medido em relação ao maior elemento da matriz. Funciona para qualquer ordem n; acima de 10×10 os passos são omitidos para a página não travar. |
 | **`lerMatriz` / `lerVetor`** | Convertem o texto digitado e validam que A é quadrada e que b tem n elementos. |
 | **6. Ligação com a página** | Abas (mostram um painel por vez) e botões que chamam `executarBissecao`, `executarSecante` e `executarGauss`. |
 
