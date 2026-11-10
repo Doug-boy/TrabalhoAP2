@@ -11,6 +11,10 @@
   --sobre-marca: #1b2733;
   --erro: #9c2f2f;
   --erro-fundo: #f6e3e1;
+  --alerta-fundo: #fbf3d4;
+  /* Séries dos gráficos (paleta validada para daltonismo e contraste nos dois temas) */
+  --serie-1: #2a78d6;
+  --serie-2: #eb6834;
 
   --fonte-titulo: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
   --fonte-texto: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
@@ -28,6 +32,9 @@
     --quadricula: rgba(141, 180, 234, 0.08);
     --erro: #f0a5a0;
     --erro-fundo: #3a2022;
+    --alerta-fundo: #33301c;
+    --serie-1: #3987e5;
+    --serie-2: #d95926;
   }
 }
 
@@ -211,3 +218,174 @@ table.matriz { width: auto; }
 .matriz td.separador { border-left: 2px solid var(--lapis); }
 
 .rodape { margin-top: 2rem; font-size: 0.85rem; color: var(--tinta-suave); }
+
+/* ---------- Quadro "Por que não rodou?" ---------- */
+.porque {
+  margin: 0.75rem 0 1rem;
+  padding: 0.75rem 1rem 0.9rem;
+  border: 1px solid var(--borda);
+  border-left: 4px solid var(--marca);
+  border-radius: 4px;
+  background: var(--cartao);
+}
+
+.porque summary {
+  cursor: pointer;
+  font-family: var(--fonte-titulo);
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.porque h4 {
+  margin: 0.8rem 0 0.25rem;
+  font-size: 0.82rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--tinta-suave);
+}
+
+.porque p, .porque ul { margin: 0; font-size: 0.95rem; }
+.porque ul { padding-left: 1.2rem; }
+.porque li + li { margin-top: 0.25rem; }
+
+.sugestao {
+  margin: 0.15rem 0.1rem;
+  padding: 0.2rem 0.6rem;
+  border: 1px solid var(--lapis);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--lapis);
+  font-family: var(--fonte-numeros);
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.sugestao:hover { background: var(--lapis); color: var(--papel); }
+
+/* ---------- Exemplos prontos e enunciado ---------- */
+.campo.exemplos { margin: 0 0 1rem; max-width: 34rem; }
+.enunciado {
+  margin: -0.4rem 0 1rem;
+  padding: 0.6rem 0.9rem;
+  border-left: 4px solid var(--lapis);
+  background: var(--papel);
+  font-size: 0.95rem;
+}
+
+/* ---------- Botões ---------- */
+.botoes { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
+.botao.secundario {
+  background: transparent;
+  color: var(--lapis);
+  border: 1px solid var(--lapis);
+  font-weight: 600;
+}
+.botao.secundario:hover { background: var(--lapis); color: var(--papel); filter: none; }
+.botao.secundario:disabled { opacity: 0.4; cursor: not-allowed; background: transparent; color: var(--lapis); }
+.botao.pequeno { padding: 0.3rem 0.7rem; font-size: 0.9rem; }
+.link {
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--lapis);
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* ---------- Ferramentas recolhíveis (tabela de sinais, grade) ---------- */
+.ferramenta {
+  margin: 0 0 1rem;
+  padding: 0.6rem 0.9rem;
+  border: 1px dashed var(--borda);
+  border-radius: 4px;
+}
+.ferramenta > summary { cursor: pointer; font-weight: 600; color: var(--lapis); }
+.ferramenta[open] > summary { margin-bottom: 0.75rem; }
+.campos-ferramenta { grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); }
+.linha-troca td { text-align: left; font-family: var(--fonte-texto); background: var(--alerta-fundo); }
+.linha-raiz td { font-weight: 700; }
+.tabela-sinais td.sinal { text-align: center; font-weight: 700; }
+
+/* ---------- Contas por extenso ---------- */
+.contas { margin: 1rem 0; }
+.contas > summary { cursor: pointer; font-weight: 600; color: var(--lapis); }
+.contas ol { margin: 0.6rem 0 0; padding-left: 1.4rem; font-family: var(--fonte-numeros); font-size: 0.88rem; }
+.contas li { margin: 0 0 0.45rem; overflow-wrap: anywhere; }
+.contas li strong { font-family: var(--fonte-texto); }
+
+/* ---------- Alerta (conta exata discorda, mal condicionamento) ---------- */
+.alerta {
+  margin: 0 0 0.75rem;
+  padding: 0.6rem 0.9rem;
+  border-left: 4px solid var(--marca);
+  background: var(--alerta-fundo);
+}
+.texto-erro { color: var(--erro); text-align: left; font-family: var(--fonte-texto); white-space: normal; }
+
+/* ---------- Gráficos ---------- */
+.grafico-area:empty { display: none; }
+.figura { margin: 1.25rem 0; }
+.figura figcaption { margin-top: 0.4rem; font-size: 0.9rem; color: var(--tinta-suave); }
+.figura .titulo-figura { margin: 0 0 0.4rem; font-weight: 700; color: var(--tinta); }
+svg.grafico { display: block; width: 100%; height: auto; background: var(--cartao); border: 1px solid var(--borda); border-radius: 4px; touch-action: pan-y; }
+.g-grade { stroke: var(--borda); stroke-width: 1; opacity: 0.6; }
+.g-eixo { stroke: var(--tinta-suave); stroke-width: 1.2; }
+.g-rotulo { fill: var(--tinta-suave); font-family: var(--fonte-numeros); font-size: 12px; }
+.g-faixa { fill: var(--lapis); opacity: 0.08; }
+.g-curva { fill: none; stroke: var(--serie-1); stroke-width: 2; stroke-linejoin: round; }
+.g-secante { stroke: var(--serie-2); stroke-width: 2; }
+.g-tracejada { stroke: var(--tinta-suave); stroke-width: 1.5; stroke-dasharray: 5 4; }
+.g-marca { stroke: var(--tinta); stroke-width: 1.5; }
+.g-rotulo-marca, .g-rotulo-ponto, .g-rotulo-serie { fill: var(--tinta); font-family: var(--fonte-numeros); font-size: 12px; }
+.g-ponto, .g-ponto-raiz, .g-ponto-secante, .g-ponto-novo { stroke: var(--cartao); stroke-width: 2; }
+.g-ponto { fill: var(--tinta); }
+.g-ponto-raiz { fill: var(--tinta); }
+.g-ponto-secante { fill: var(--serie-2); }
+.g-ponto-novo { fill: var(--cartao); stroke: var(--tinta); }
+.g-mira { stroke: var(--tinta-suave); stroke-width: 1; stroke-dasharray: 3 3; }
+.g-ponto-mouse { fill: var(--serie-1); stroke: var(--cartao); stroke-width: 2; }
+.g-caixa-mouse { fill: var(--cartao); stroke: var(--borda); }
+.g-texto-mouse { fill: var(--tinta); font-family: var(--fonte-numeros); font-size: 12px; }
+.g-serie { fill: none; stroke-width: 2; }
+.g-serie.serie-1 { stroke: var(--serie-1); }
+.g-serie.serie-2 { stroke: var(--serie-2); }
+.g-marcador { stroke: var(--cartao); stroke-width: 2; }
+.g-marcador.serie-1 { fill: var(--serie-1); }
+.g-marcador.serie-2 { fill: var(--serie-2); }
+.g-alvo { fill: transparent; }
+.legenda { display: flex; gap: 1.2rem; margin: 0 0 0.4rem; font-size: 0.9rem; }
+.legenda-item { display: inline-flex; align-items: center; gap: 0.4rem; }
+.legenda-cor { display: inline-block; width: 18px; height: 4px; border-radius: 2px; }
+.legenda-cor.serie-1 { background: var(--serie-1); }
+.legenda-cor.serie-2 { background: var(--serie-2); }
+
+/* ---------- Animação da secante ---------- */
+.animacao-controles { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; margin: 1.25rem 0 0; }
+.animacao-passo { font-weight: 600; min-width: 9rem; text-align: center; }
+.animacao-zoom { font-size: 0.9rem; color: var(--tinta-suave); display: inline-flex; gap: 0.3rem; align-items: center; }
+
+/* ---------- Matriz em grade ---------- */
+.grade-controles { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; margin-bottom: 0.6rem; }
+.nota-inline { font-size: 0.85rem; color: var(--tinta-suave); }
+table.grade { width: auto; }
+table.grade th { text-align: center; }
+table.grade td { padding: 0.15rem 0.2rem; border-bottom: none; }
+table.grade .separador { border-left: 2px solid var(--lapis); padding-left: 0.5rem; }
+.celula { width: 5.5rem; padding: 0.3rem 0.4rem; font-size: 0.95rem; text-align: right; }
+
+/* ---------- Impressão: só o painel aberto, sem botões e sem o fundo quadriculado ---------- */
+@media print {
+  body { background: #fff; color: #000; padding: 0; }
+  .abas, .botoes, .rodape, .exemplos, .nota, .sugestao, .animacao-controles, .grade-controles,
+  .ferramenta:not([open]), .g-mouse, .g-captura { display: none !important; }
+  .painel { border: none; padding: 0; }
+  .painel[hidden] { display: none !important; }
+  .topo { padding: 0 0 0.5rem; }
+  .topo p { display: none; }
+  input, select, textarea { border: 1px solid #999; background: #fff; color: #000; }
+  table, figure, .passo, .porque, .alerta { break-inside: avoid; }
+  th, td { font-size: 9pt; padding: 0.2rem 0.4rem; }
+  .saida, .figura { margin-top: 0.75rem; }
+  details > summary { list-style: none; }
+}

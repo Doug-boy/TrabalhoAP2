@@ -18,6 +18,7 @@
     <button type="button" role="tab" class="aba" data-alvo="painel-bissecao" aria-selected="true">Bisseção</button>
     <button type="button" role="tab" class="aba" data-alvo="painel-secante" aria-selected="false">Secante</button>
     <button type="button" role="tab" class="aba" data-alvo="painel-gauss" aria-selected="false">Eliminação de Gauss</button>
+    <button type="button" role="tab" class="aba" data-alvo="painel-comparar" aria-selected="false">Comparar bisseção × secante</button>
   </nav>
 
   <main>
@@ -30,6 +31,11 @@
         a cada passo. Exige que f(a) e f(b) tenham sinais opostos.
       </p>
 
+      <label class="campo exemplos">Exemplos prontos (listas e slides)
+        <select id="bis-exemplo" data-metodo="bissecao"><option value="">Escolha um exemplo para carregar e rodar…</option></select>
+      </label>
+      <div id="bis-enunciado" class="enunciado" hidden></div>
+
       <div class="campos">
         <label class="campo largo">Função f(x)
           <input type="text" id="bis-funcao" value="x^3 - 2*x - 5" autocomplete="off" spellcheck="false">
@@ -40,10 +46,10 @@
         <label class="campo">Limite superior (b)
           <input type="text" id="bis-b" value="3" autocomplete="off">
         </label>
-        <label class="campo">Tolerância
+        <label class="campo">Tolerância (ε)
           <input type="text" id="bis-tolerancia" value="1e-6" autocomplete="off">
         </label>
-        <label class="campo">Máximo de iterações
+        <label class="campo">Máximo de iterações (N)
           <input type="text" id="bis-maxiter" value="50" inputmode="numeric">
         </label>
         <label class="campo">Erro usado para parar
@@ -58,14 +64,42 @@
             <option value="erro">Erro ≤ tolerância</option>
             <option value="fx">|f(x)| ≤ tolerância</option>
             <option value="ambos">Um dos dois</option>
+            <option value="cota">(b − a)/2 &lt; tolerância (Burden, Ruggiero)</option>
+            <option value="largura">b − a &lt; tolerância (largura do intervalo)</option>
+            <option value="fixo">Fazer exatamente N iterações</option>
           </select>
         </label>
+        <label class="campo">Casas decimais na tabela
+          <input type="text" id="bis-casas" value="6" inputmode="numeric">
+        </label>
       </div>
-      <p class="nota">Números aceitam 0.5, 0,5, pi/2, sqrt(2), 1e-5, 10^-5 e 5x10^-4. Para seguir os slides
+      <p class="nota">Números aceitam 0.5, 0,5, pi/2, sqrt(2), 1e-5, 10^-5 e 5x10^-4 (para "vezes", use x ou *). Para seguir os slides
         (ER% &lt; ε), escolha "Relativo em %" e digite o ε como está na lista.</p>
 
-      <button type="button" class="botao" id="botao-bissecao">Calcular raiz</button>
+      <details class="ferramenta" id="bis-ferramenta">
+        <summary>Procurar intervalo [a, b]: tabela de sinais e gráfico de f(x)</summary>
+        <div class="campos campos-ferramenta">
+          <label class="campo">De
+            <input type="text" id="bis-sinais-de" value="-10" autocomplete="off">
+          </label>
+          <label class="campo">Até
+            <input type="text" id="bis-sinais-ate" value="10" autocomplete="off">
+          </label>
+          <label class="campo">Passo
+            <input type="text" id="bis-sinais-passo" value="0.5" autocomplete="off">
+          </label>
+        </div>
+        <button type="button" class="botao secundario" id="bis-sinais-botao" data-metodo="bissecao">Montar tabela de sinais</button>
+        <div id="bis-sinais-saida" class="saida"></div>
+      </details>
+
+      <div class="botoes">
+        <button type="button" class="botao" id="botao-bissecao">Calcular raiz</button>
+        <button type="button" class="botao secundario copiar" data-saida="saida-bissecao">Copiar tabela</button>
+        <button type="button" class="botao secundario imprimir">Imprimir / salvar PDF</button>
+      </div>
       <div id="saida-bissecao" class="saida" aria-live="polite"></div>
+      <div id="bis-grafico" class="grafico-area"></div>
     </section>
 
     <!-- ================= SECANTE ================= -->
@@ -75,6 +109,11 @@
         Parte de dois valores iniciais e traça uma reta (secante) entre os pontos da função
         para chegar mais perto da raiz. Não exige mudança de sinal, mas pode divergir.
       </p>
+
+      <label class="campo exemplos">Exemplos prontos (listas e slides)
+        <select id="sec-exemplo" data-metodo="secante"><option value="">Escolha um exemplo para carregar e rodar…</option></select>
+      </label>
+      <div id="sec-enunciado" class="enunciado" hidden></div>
 
       <div class="campos">
         <label class="campo largo">Função f(x)
@@ -86,10 +125,10 @@
         <label class="campo">Segundo valor (x₁)
           <input type="text" id="sec-x1" value="3" autocomplete="off">
         </label>
-        <label class="campo">Tolerância
+        <label class="campo">Tolerância (ε)
           <input type="text" id="sec-tolerancia" value="1e-6" autocomplete="off">
         </label>
-        <label class="campo">Máximo de iterações
+        <label class="campo">Máximo de iterações (N)
           <input type="text" id="sec-maxiter" value="50" inputmode="numeric">
         </label>
         <label class="campo">Erro usado para parar
@@ -104,14 +143,40 @@
             <option value="erro">Erro ≤ tolerância</option>
             <option value="fx">|f(x)| ≤ tolerância</option>
             <option value="ambos">Um dos dois</option>
+            <option value="fixo">Fazer exatamente N iterações</option>
           </select>
         </label>
+        <label class="campo">Casas decimais na tabela
+          <input type="text" id="sec-casas" value="6" inputmode="numeric">
+        </label>
       </div>
-      <p class="nota">Números aceitam 0.5, 0,5, pi/2, sqrt(2), 1e-5, 10^-5 e 5x10^-4. Para seguir os slides
+      <p class="nota">Números aceitam 0.5, 0,5, pi/2, sqrt(2), 1e-5, 10^-5 e 5x10^-4 (para "vezes", use x ou *). Para seguir os slides
         (ER% &lt; ε), escolha "Relativo em %" e digite o ε como está na lista.</p>
 
-      <button type="button" class="botao" id="botao-secante">Calcular raiz</button>
+      <details class="ferramenta" id="sec-ferramenta">
+        <summary>Procurar bons chutes x₀ e x₁: tabela de sinais e gráfico de f(x)</summary>
+        <div class="campos campos-ferramenta">
+          <label class="campo">De
+            <input type="text" id="sec-sinais-de" value="-10" autocomplete="off">
+          </label>
+          <label class="campo">Até
+            <input type="text" id="sec-sinais-ate" value="10" autocomplete="off">
+          </label>
+          <label class="campo">Passo
+            <input type="text" id="sec-sinais-passo" value="0.5" autocomplete="off">
+          </label>
+        </div>
+        <button type="button" class="botao secundario" id="sec-sinais-botao" data-metodo="secante">Montar tabela de sinais</button>
+        <div id="sec-sinais-saida" class="saida"></div>
+      </details>
+
+      <div class="botoes">
+        <button type="button" class="botao" id="botao-secante">Calcular raiz</button>
+        <button type="button" class="botao secundario copiar" data-saida="saida-secante">Copiar tabela</button>
+        <button type="button" class="botao secundario imprimir">Imprimir / salvar PDF</button>
+      </div>
       <div id="saida-secante" class="saida" aria-live="polite"></div>
+      <div id="sec-grafico" class="grafico-area"></div>
     </section>
 
     <!-- ================= GAUSS ================= -->
@@ -120,8 +185,13 @@
       <p class="explicacao">
         Resolve o sistema A·x = b para matriz quadrada de qualquer ordem. Com pivoteamento parcial, em cada coluna a linha
         com o maior valor em módulo vira o pivô; depois zeramos os valores abaixo dele e resolvemos de baixo para cima.
-        Também mostra o determinante e a fatoração LU (deixe b vazio para ver só isso).
+        Também mostra o determinante, a fatoração LU e a solução por LU (deixe b vazio para ver só o determinante e a LU).
       </p>
+
+      <label class="campo exemplos">Exemplos prontos (Lista 6)
+        <select id="gauss-exemplo" data-metodo="gauss"><option value="">Escolha um exemplo para carregar e rodar…</option></select>
+      </label>
+      <div id="gauss-enunciado" class="enunciado" hidden></div>
 
       <div class="campos">
         <label class="campo">Matriz A (uma linha por linha)
@@ -155,16 +225,74 @@
       <p class="nota">Separe os números com espaço (ou ;). Decimais com ponto ou vírgula colada: 0.5 ou 0,5.
         Frações e expressões funcionam: 1/2, -sqrt(2), pi. Para F(10, 3, ...) dos slides, use 3 algarismos significativos.</p>
 
-      <button type="button" class="botao" id="botao-gauss">Resolver sistema</button>
+      <details class="ferramenta" id="gauss-grade-caixa">
+        <summary>Editar em grade (uma caixinha por número)</summary>
+        <div class="grade-controles">
+          <span>Ordem n:</span>
+          <button type="button" class="botao secundario pequeno" id="gauss-grade-menos" aria-label="Diminuir a ordem">−</button>
+          <strong id="gauss-grade-n">3</strong>
+          <button type="button" class="botao secundario pequeno" id="gauss-grade-mais" aria-label="Aumentar a ordem">+</button>
+          <span class="nota-inline">A grade e as caixas de texto ficam sempre iguais: mudar uma muda a outra.</span>
+        </div>
+        <div id="gauss-grade" class="rolagem"></div>
+      </details>
+
+      <div class="botoes">
+        <button type="button" class="botao" id="botao-gauss">Resolver sistema</button>
+        <button type="button" class="botao secundario copiar" data-saida="saida-gauss">Copiar resultado</button>
+        <button type="button" class="botao secundario imprimir">Imprimir / salvar PDF</button>
+      </div>
       <div id="saida-gauss" class="saida" aria-live="polite"></div>
+    </section>
+
+    <!-- ================= COMPARAR ================= -->
+    <section id="painel-comparar" class="painel" role="tabpanel" hidden>
+      <h2>Comparar bisseção × secante</h2>
+      <p class="explicacao">
+        Roda os dois métodos na mesma função e mostra quantas iterações cada um precisa e como o erro cai.
+        A bisseção usa [a, b]; a secante usa x₀ = a e x₁ = b.
+      </p>
+
+      <div class="campos">
+        <label class="campo largo">Função f(x)
+          <input type="text" id="cmp-funcao" value="x^3 - 2*x - 5" autocomplete="off" spellcheck="false">
+        </label>
+        <label class="campo">a (e x₀)
+          <input type="text" id="cmp-a" value="2" autocomplete="off">
+        </label>
+        <label class="campo">b (e x₁)
+          <input type="text" id="cmp-b" value="3" autocomplete="off">
+        </label>
+        <label class="campo">Tolerância (ε)
+          <input type="text" id="cmp-tolerancia" value="1e-6" autocomplete="off">
+        </label>
+        <label class="campo">Máximo de iterações (N)
+          <input type="text" id="cmp-maxiter" value="100" inputmode="numeric">
+        </label>
+        <label class="campo">Erro usado para parar
+          <select id="cmp-tipoerro">
+            <option value="absoluto">Absoluto: |xₖ − xₖ₋₁|</option>
+            <option value="relativo">Relativo: |xₖ − xₖ₋₁| / |xₖ|</option>
+            <option value="percentual">Relativo em % (ER%): 100·|xₖ − xₖ₋₁| / |xₖ|</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="botoes">
+        <button type="button" class="botao" id="botao-comparar">Comparar</button>
+        <button type="button" class="botao secundario imprimir">Imprimir / salvar PDF</button>
+      </div>
+      <div id="saida-comparar" class="saida" aria-live="polite"></div>
     </section>
 
   </main>
 
   <footer class="rodape">
-    <p>Todo o cálculo roda no seu navegador; nada é enviado para servidor.</p>
+    <p>Todo o cálculo roda no seu navegador; nada é enviado para servidor. Os campos ficam salvos neste navegador.
+      <button type="button" class="link" id="restaurar-padrao">Restaurar os valores padrão</button></p>
   </footer>
 
   <script src="app.js"></script>
+  <script src="extras.js"></script>
 </body>
 </html>

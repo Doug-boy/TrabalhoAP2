@@ -41,7 +41,7 @@ Confira as fórmulas de erro e de parada com o seu caderno/slides da disciplina.
 
 **Atenção ao critério dos slides:** no Exemplo 7 da secante (Cap. 3), a professora para quando **ER% < ε** (erro relativo em porcentagem). Com ε = 10⁻² isso dá 4 iterações; com erro absoluto ou relativo comum daria 3. No programa, escolha "Relativo em % (ER%)" e digite o ε como está no slide. Na Lista 4 de bisseção, o critério absoluto bate com N (ex.: Q4 converge em 10 iterações; com ER% < 10⁻³ não convergiria em 15), então confirmem com a professora qual critério ela quer em cada lista.
 
-O programa deixa escolher o tipo de erro (absoluto, relativo ou ER%) e o critério de parada (erro ≤ ε, \|f(x)\| ≤ ε ou um dos dois). Na bisseção, a coluna (b−a)/2 é a **cota** do erro. Erro pequeno **não** garante \|f(x)\| pequeno (caso da assíntota); o programa avisa nesse caso.
+O programa deixa escolher o tipo de erro (absoluto, relativo ou ER%) e o critério de parada (também (b − a)/2 < ε, b − a < ε e "N iterações fixas") (erro ≤ ε, \|f(x)\| ≤ ε ou um dos dois). Na bisseção, a coluna (b−a)/2 é a **cota** do erro. Erro pequeno **não** garante \|f(x)\| pequeno (caso da assíntota); o programa avisa nesse caso.
 
 ## 5. Eliminação de Gauss com pivoteamento parcial
 
@@ -49,6 +49,8 @@ O programa deixa escolher o tipo de erro (absoluto, relativo ou ER%) e o critér
 - **Pivoteamento parcial:** em cada coluna, troca-se a linha para colocar na diagonal o maior valor em módulo. Isso evita dividir por zero (ex.: `[[0,1],[1,0]]`) e reduz a propagação de erros de arredondamento (os fatores ficam com módulo ≤ 1).
 - **Custo:** ≈ 2n³/3 operações; a retrossubstituição custa ≈ n².
 - **Determinante:** det(A) = (−1)^(nº de trocas) × produto dos pivôs. Ex.: Lista 6, Q10 → 5 · (−0,2) · 13 = −13.
+- **Resolver por LU (Lista 6, Q10):** com A = L·U, resolve-se L·y = b (substituição para frente) e depois U·x = y (retrossubstituição). O site mostra as duas com os números.
+- **Número de condição:** cond∞(A) = ‖A‖∞·‖A⁻¹‖∞. Perde-se cerca de log₁₀(cond) algarismos. Hilbert 3×3: 748; Hilbert 4×4: 28.375; Hilbert 8×8: 3,4·10¹⁰.
 - **Fatoração LU:** os multiplicadores mᵢₖ formam L (diagonal de 1s) e a matriz final é U, então A = L·U (com trocas, P·A = L·U). Lista 6, Q8: L = [1 0 0; 2 1 0; 3 1 1], U = [1 1 1; 0 −1 −3; 0 0 0].
 - **Aritmética de ponto flutuante F(10, k, ...):** cada conta é arredondada para k algarismos. Na Q13 com k = 3, sem pivoteamento sai x₁ = 0 (errado; o multiplicador 10000 "engole" os números) e com pivoteamento sai x₁ = 0,500 (certo).
 - **Classificação (pegadinhas):**
@@ -78,11 +80,15 @@ O programa deixa escolher o tipo de erro (absoluto, relativo ou ER%) e o critér
 | **1. `compilarFuncao`** | Lê o texto de f(x) (ex.: `x^3 - 2*x - 5`, `sin(x)`) com um analisador próprio, sem `eval`. Aceita `^` e `**`, `x²`/`x³`, vírgula decimal (`0,5x`), multiplicação implícita (`2x`), módulo `\|x\|`, equações com `=`, `pi`, `e` e funções como sen, cos, tg, arcsen, exp, ln, log (base 10), log2, sqrt, abs. Sem parênteses em funções (`senx`) ou expoentes (`e^2x`) é ambíguo, então o programa pede parênteses. |
 | **2. Utilidades** | `avaliarNumero` (campos aceitam `pi/2`, `10^-5`, `5x10^-4`, `0,5`), `formatar`, `lerNumero`, `lerTolerancia`, `montarTabela`, `mostrarErro`. |
 | **3. `calcularErro` / `atendeParada`** | Calculam o erro absoluto, relativo ou ER% e decidem quando parar, conforme o critério escolhido. `blocoResultado` monta o resumo e avisa se \|f(x)\| continua grande; `avisoRaizZero` explica por que o erro relativo não funciona quando a raiz é 0. |
+| **3b. Tela da bisseção e da secante** | `linhaBolzano`, `linhaPrevisao` (n ≥ log₂((b − a)/ε) com a conta), `contasBissecao` e `contasSecante` (cada iteração por extenso), `avisoPrecisao` e o aviso de `5.10^-4`. |
 | **3. `bissecao`** | Valida o intervalo (Bolzano, comparando os sinais de f(a) e f(b)), calcula o ponto médio, guarda cada passo (a, b, f(a), f(b), x, f(x), erros) e fica com a metade onde o sinal troca. |
 | **4. `secante`** | Aplica a fórmula da secante; recusa x₀ = x₁, aceita chute que já é raiz e detecta divisão por zero, divergência (\|x\| passa de 10⁶ vezes o tamanho dos chutes) e domínio inválido. A tabela tem as mesmas colunas do slide. `estimarOrdem` estima p ≈ ln(eₖ₊₁/eₖ) / ln(eₖ/eₖ₋₁), só quando converge. |
 | **5. `eliminarGauss`** | Pivoteamento parcial (ou sem pivoteamento), eliminação, retrossubstituição, classificação SPD/SPI/SI, determinante e fatoração LU. Opcional: arredondar cada conta a k algarismos significativos ou k casas decimais (`criarArredondamento`). Um valor conta como zero quando é minúsculo perto dos números que o geraram, considerando a precisão usada. Funciona para qualquer ordem n; acima de 10×10 os passos são omitidos. |
+| **5b. Frações exatas** | `Fracao` (BigInt), `fracaoDeTexto`, `gaussExato` (classificação, det e solução sem arredondamento) e `numeroCondicao`. Se a conta com ≈ 16 algarismos discorda da exata, o site avisa. |
 | **`lerMatriz` / `lerVetor`** | Convertem o texto digitado (espaço ou `;` separam; vírgula colada entre dígitos é decimal) e validam que A é quadrada e que b tem n elementos. b vazio = só determinante e LU. |
-| **6. Ligação com a página** | Abas (mostram um painel por vez) e botões que chamam `executarBissecao`, `executarSecante` e `executarGauss`. |
+| **6. Ligação com a página** | Abas (mostram um painel por vez), botões que chamam `executarBissecao`, `executarSecante` e `executarGauss`, e os botões de sugestão dos quadros. |
+| **`extras.js`** | Gráficos em SVG (sem biblioteca), tabela de sinais, animação da secante, aba Comparar, exemplos prontos, matriz em grade, copiar, imprimir, Enter e campos salvos. |
+| **7. "Por que não rodou?"** | Quando algo falha, o erro carrega os números do problema (`ErroDoMetodo`) e `explicarBissecao`, `explicarSecante` e `explicarGauss` montam o quadro com o que aconteceu, por quê e como resolver. `varrerFuncao` percorre f num intervalo e separa trocas de sinal que são raízes (uma minibisseção leva \|f\| a 0) de assíntotas (\|f\| explode) e de raízes que só encostam no eixo (multiplicidade par). |
 
 ## 8. Como digitar as questões no site
 
@@ -99,6 +105,9 @@ O programa deixa escolher o tipo de erro (absoluto, relativo ou ER%) e o critér
 | "três casas decimais" | Aritmética: "Arredondar a k casas decimais", k = 3 |
 | F(10, 3, ...) | Aritmética: "Arredondar a k algarismos significativos", k = 3 |
 | Determinante / LU | Aparecem no resultado do Gauss; deixe b vazio se a questão não tiver b |
+| "Faça 5 iterações" | Parar quando: "Fazer exatamente N iterações", N = 5 |
+| Critério do Ruggiero/Burden | Parar quando: "(b − a)/2 < tolerância" |
+| Qualquer questão das listas | Menu "Exemplos prontos" de cada aba |
 
 ## 9. Lembretes da apresentação
 
