@@ -108,9 +108,3 @@ O programa deixa escolher o tipo de erro (absoluto, relativo ou ER%) e o critér
 | "Faça 5 iterações" | Parar quando: "Fazer exatamente N iterações", N = 5 |
 | Critério do Ruggiero/Burden | Parar quando: "(b − a)/2 < tolerância" |
 | Qualquer questão das listas | Menu "Exemplos prontos" de cada aba |
-
-## 9. Lembretes da apresentação
-
-- Se alguém do grupo **não participou**, o aviso deve ser **oficial, por e-mail, até o dia da apresentação**; essa pessoa fica com 0.
-- Perguntas teóricas valem nota; as de programação são mais curiosidade.
-- Não vale um colega responder no lugar de quem foi perguntado: todos precisam dominar a teoria.
